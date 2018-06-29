@@ -1,0 +1,152 @@
+<!--  -->
+<template>
+  <view>
+      <swiper bindanimationfinish="change" class='topList' previous-margin="60rpx" next-margin="60rpx" style='height:{{innerHeight}}px'>
+        <block wx:for="{{list}}" wx:key="{{*index}}">
+          <swiper-item class="topListitem" bindtap="go" data-id="{{item.id}}" data-name="{{item.name}}">
+            <view class='topListitem_center'>
+              <image class='topListimg' src="{{item.img1v1Url}}"></image>
+              <view class='topNum'>NO.{{index+1}}</view>
+              <view class='nameBox'>
+                <view class='name'>{{item.name}}</view>
+                <view class='smallName' wx:if="{{item.alias.length}}">({{item.alias[0]}})</view>
+              </view>
+              <view class='bofang'>
+                <view class='iconfont icon-bofang'></view>
+              </view>
+            </view>
+          </swiper-item>
+        </block>
+      </swiper>
+    </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import api from '../api/api.js'
+  export default class Example extends wepy.page {
+    config = {
+      navigationBarTitleText: "",
+    };
+
+    data = {
+      offset:0,
+      list:[],
+      innerHeight:0
+    };
+
+    components = {};
+
+    methods = {
+       change(opt){
+          if (opt.detail.current == this.list.length-5){
+            this.offset=this.offset + 20
+            this.getTopList()
+          }
+        },
+        go(opt){         
+          wx.navigateTo({
+            url: `./mvList?id=${opt.currentTarget.dataset.id}&name=${opt.currentTarget.dataset.name}`
+          })
+        }
+    };
+
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    onLoad (options) {
+      this.getTopList()
+      // 设置页面高度
+      wx.getSystemInfo({
+        success: res => {
+          this.innerHeight=res.windowHeight
+          this.$apply()
+        },
+      })
+    }
+
+    onShow() { };
+
+    getTopList(){
+      api.getArtisttoplist({
+        data:{
+          offset: this.offset,
+          limit: 20
+        },
+        success:resp=>{
+          this.list = this.list.concat(resp.data.artists)
+          this.$apply()
+        }
+      })
+    }
+  }
+</script>
+
+<style lang='less'>
+  /* pages/topList/topList.wxss */
+
+.topList {
+  width: 100%;
+  height: 750rpx;
+}
+
+.topListitem {
+  height: 90%;
+  display: flex;
+  align-items: center;
+}
+
+.topListitem_center {
+  padding: 20rpx;
+  width: 95%;
+  height: 95%;
+  box-sizing: border-box;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  border: 1px solid #f2f2f2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+}
+
+.topListimg {
+   height: 555rpx; 
+  width: 100%;
+}
+.topNum{
+  font-size: 32rpx;
+  text-align: center;
+  /* margin-top: 20rpx; */
+}
+.name{
+  font-size: 40rpx;
+  font-weight: bold;
+  text-align: center;
+  /* margin-top: 60rpx; */
+}
+.smallName{
+  font-size: 24rpx;
+  color: #999;
+  font-weight: normal;
+  text-align: center;
+   margin-top: 10rpx; 
+}
+.bofang{
+  text-align: center;
+  height: 160rpx;
+}
+.bofang view{
+  font-size: 80rpx;
+  color: #d81e06;
+  /* color: #666; */
+}
+.nameBox{
+  margin-bottom: 60rpx;
+}
+</style>

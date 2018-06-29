@@ -1,0 +1,83 @@
+<style lang="less">
+  @import './style/iconfont.wxss';
+  .container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 200rpx 0;
+    box-sizing: border-box;
+  } 
+
+</style>
+
+<script>
+import wepy from 'wepy'
+
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index',
+      'pages/video',
+      'pages/search',
+      'pages/musicList',
+      'pages/audioPage',
+      'pages/allMusiclist',
+      'pages/videoPlay',
+      'pages/topList',
+      'pages/mvList'
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#EA584F',
+      navigationBarTitleText: '网易云',
+      navigationBarTextStyle: '#fff'
+    },
+    tabBar: {
+      color: "#666",
+      selectedColor: "#d81e06",
+      borderStyle: "#999",
+      backgroundColor: "#fff",
+      list: [
+        {
+          pagePath: "pages/index",
+          iconPath: "images/discover.png",
+          selectedIconPath: "images/discover_active.png",
+          text: "推 荐"
+        },
+        {
+          pagePath: "pages/allMusiclist",
+          iconPath: "images/my.png",
+          selectedIconPath: "images/my_active.png",
+          text: " 精 品"
+        },
+        {
+          pagePath: "pages/video",
+          iconPath: "images/video.png",
+          selectedIconPath: "images/video_active.png",
+          text: "M V"
+        },
+        {
+          pagePath: "pages/topList",
+          iconPath: "images/friend.png",
+          selectedIconPath: "images/friend_active.png",
+          text: "歌 手"
+        }
+      ]
+    }
+  }
+
+  globalData  = {
+    userInfo: "",
+    musicListArr: [],      //歌单列表
+    musicData: {},        //当前播放的歌曲信息
+    musicIndex: -1,         //当前播放音乐的 index
+    isplaying: false        //是否正在播放
+  }
+
+  onLaunch() {
+    console.log('on launch')
+  }
+}
+</script>

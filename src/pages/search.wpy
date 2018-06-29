@@ -1,0 +1,593 @@
+<!--  -->
+<template>
+  <view class='searchPage'>
+  <view class='topSearch'>
+    <form bindreset="clearValue" class='inputform'>
+      <input class='inputB' placeholder-class="holderInput" placeholder="输入您想要搜索的内容" auto-focus confirm-type="search" bindconfirm="startSearch" bindinput="inputC" value="{{keywords}}"></input>
+      <view class='iconfont icon-sousuo sousuo'></view>
+      <button class='iconfont icon-shanchu clearBtn' formType="reset" wx:if="{{haveValue}}"></button>
+    </form>
+    <view class='cansBtn' bindtap='back'>取消</view>
+  </view>
+  <view class='searchBottom' wx:if="{{showHotsearch}}">
+    <view class='hotsearchtitle'>热门搜索</view>
+    <block wx:for="{{hotsearch}}" wx:key="{{*index}}">
+      <text class='hotsearchitem' bindtap='startSearch' data-value='{{item.name}}'>{{item.name}}</text>
+    </block>
+  </view>
+
+  <view wx:else>
+    <view class='searchNav'>
+      <text bindtap='changeNav' data-type='1'>单曲</text>
+      <text bindtap='changeNav' data-type='1000'>歌单</text>
+      <text bindtap='changeNav' data-type='100'>歌手</text>
+      <text bindtap='changeNav' data-type='1004'>视频</text>
+      <view class='navLine' style='transform:translateX({{navLinePosition}})'></view>
+    </view>
+    <view class='listBox'>
+      <view class='listBoxcenter' style='transform:translateX({{positionLeft}})'>
+        <view class='songBox centeritem' style='height:{{innerHeight}}rpx'>
+          
+
+            <repeat for="{{songArr}}" key="*index" index="index" item="item">
+                <songList :item="item"></songList>
+            </repeat>
+
+
+        </view>
+        <view class='musiclistBox centeritem' style='height:{{innerHeight}}rpx'>
+
+          <repeat for="{{musicListArr}}" key="%index" index="index" item="item">
+                <musicList :item="item"></musicList>
+            </repeat>
+          
+        </view>
+        <view class='singerBox centeritem' style='height:{{innerHeight}}rpx'>         
+
+
+          <repeat for="{{singerArr}}" key="%index" index="index" item="item">
+                <singerList :item="item"></singerList>
+            </repeat>
+          
+        </view>
+        <view class='videoBox centeritem' style='height:{{innerHeight}}rpx'>
+
+            <repeat for="{{videoArr}}" key="%index" index="index" item="item">
+                <videoList :item="item"></videoList>
+            </repeat>
+
+        
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import api from '../api/api.js'
+  import songList from '../components/songList'
+  import musicList from '../components/musicList'
+  import singerList from '../components/singerList'
+  import videoList from '../components/videoList'
+  export default class Example extends wepy.page {
+    config = {
+      navigationBarTitleText: "搜索",
+    }
+
+    data = {
+      haveValue: false,
+      keywords: '',
+      limit: 60,
+      hotsearch: [],
+      songArr: [],   //歌曲
+      musicListArr: [],   //歌单
+      singerArr: [],   //歌手
+      videoArr: [], //视频
+      showHotsearch: true,
+      searchType: 1,
+      navLinePosition: '53rpx',
+      positionLeft: 0,
+      innerHeight: 0
+    }
+
+    components = {
+      songList:songList,
+      musicList:musicList,
+      singerList:singerList,
+      videoList:videoList
+    }
+
+    methods = {
+        // 清除vlaue
+        clearValue() {
+          this.haveValue = false
+          this.showHotsearch=true
+        },
+         // 返回上一页
+        back() {
+          wx.navigateBack()
+        },
+        // 搜索框输入后按搜索按钮时的搜索，参数都应是默认值
+        startSearch(opt) {
+          let keywords = '';
+          if (!opt.detail.value){
+            keywords = opt.currentTarget.dataset.value
+          }else{
+            keywords = opt.detail.value
+          }
+          // 搜索前先清空每个数组       
+          this.haveValue= true,
+          this.keywords= keywords,
+          this.songArr= [],   //歌曲
+          this.musicListArr= [],   //歌单
+          this.singerArr= [],   //歌手
+          this.videoArr= [], //视频         
+          this.search();
+        },
+        // nav点击
+        changeNav(opt) {
+          switch (opt.currentTarget.dataset.type) {
+            case '1':              
+                this.navLinePosition= '53rpx'
+                this.searchType= 1
+                this.positionLeft= 0              
+                if (!this.songArr.length) {
+                  this.search();
+                }
+              break;
+            case '1000':              
+                this.navLinePosition= '240rpx'
+                this.searchType= 1000
+                this.positionLeft= '-750rpx'              
+                if (!this.musicListArr.length) {
+                  this.search();
+                }
+                break;
+            case '100':             
+                this.navLinePosition= '428rpx'
+                this.searchType= 100
+                this.positionLeft= '-1500rpx'              
+              if (!this.singerArr.length) {
+                this.search();
+              }
+              break;
+            case '1004':             
+              this.navLinePosition= '616rpx'
+              this.searchType= 1004
+              this.positionLeft= '-2250rpx'              
+              if (!this.videoArr.length) {
+                this.search();
+              }
+              break;
+          }
+        },
+        // 跳转到播放页
+        playSong(opt) {
+          api.getSongDetai({
+            data: {
+              ids: opt.currentTarget.dataset.itemid
+            },
+            success: resp => {
+              this.$parent.musicListArr = resp.data.songs
+              wx.navigateTo({
+                url: './audioPage?musicindex=0&duration=' + opt.currentTarget.dataset.duration,
+              })
+              this.$apply()
+
+            }
+          })
+        },
+
+        // 跳转到歌单
+        goMusiclist(e) {
+          wx.navigateTo({
+            url: `./musicList?musicListID=${e.currentTarget.dataset.id}`,
+          })
+        },
+
+        // 跳转到歌手MV
+        goSingerMv(opt){
+          wx.navigateTo({
+            url: `./mvList?id=${opt.currentTarget.dataset.id}&name=${opt.currentTarget.dataset.name}`
+          })
+        },
+
+        // 播放视频
+        govideoDetai(opt) {
+          wx.navigateTo({
+            url: `./videoPlay?videoid=${opt.currentTarget.dataset.id}`,
+          })
+        },
+        // 输入中
+        inputC(opt) {
+          if (opt.detail.value.length) {
+            this.haveValue= true
+          } else {
+            this. haveValue = false
+            this.showHotsearch = true      
+          }
+        }
+    }
+
+    // 实际进行搜索的函数
+    search() {
+      api.searchStart({
+        data: {
+          keywords: this.keywords,
+          limit: this.limit,
+          type: this.searchType,
+        },
+        success: resp => {
+          switch (this.data.searchType) {
+            case 1:
+                this.songArr = resp.data.result.songs
+                this.showHotsearch = false    
+                this.$apply()        
+              break;
+            case 1000:           
+                this.musicListArr= resp.data.result.playlists
+                this.showHotsearch= false  
+                this.$apply()          
+              break;
+            case 100:            
+                this.singerArr= resp.data.result.artists
+                this.showHotsearch= false
+                this.$apply()
+              
+              break;
+            case 1004:           
+                this.videoArr= resp.data.result.mvs
+                this.showHotsearch= false
+                this.$apply()
+              break;
+          }
+        }
+      })
+    }
+
+    // 热门搜索
+    gethotsearch() {
+      api.getHotSearch({
+        success: resp => {
+          this.hotsearch = resp.data.result
+          this.$apply()
+        }
+      })
+    }
+
+
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    onLoad() { 
+      this.gethotsearch();
+      wx.getSystemInfo({
+        success:res=> {
+          console.log(res.windowHeight)
+          this.innerHeight = res.windowHeight*2-160  
+          this.$apply()              
+        }
+      })
+    }
+    onShow() { }
+  }
+</script>
+
+<style lang='less'>
+.searchPage {
+  padding-top: 160rpx;
+}
+.topSearch {
+  height: 80rpx;
+  background-color: #ea584f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 9;
+}
+
+.inputform {
+  width: 670rpx;
+  height: 60rpx;
+  margin: 10rpx 20rpx;
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 60rpx;
+}
+
+.inputB {
+  font-size: 26rpx;
+  color: #fff;
+  width: 100%;
+  height: 60rpx;
+  padding: 0 70rpx 0 50rpx;
+  line-height: 60rpx;
+  box-sizing: border-box;
+}
+
+.cansBtn {
+  width: 80rpx;
+  height: 80rpx;
+  flex-shrink: 0;
+  font-size: 26rpx;
+  color: #fff;
+  line-height: 80rpx;
+  text-align: left;
+}
+
+.sousuo {
+  position: absolute;
+  height: 60rpx;
+  width: 60rpx;
+  top: 10rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 25rpx;
+  color: #fff;
+  left: 26rpx;
+}
+
+.clearBtn {
+  position: absolute;
+  right: 120rpx;
+  top: 10rpx;
+  opacity: 0.4;
+  height: 60rpx;
+  width: 60rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  box-shadow: transparent;
+}
+
+.holderInput {
+  color: #fff;
+  text-align: left;
+  background-color: transparent;
+  font-size: 24rpx;
+  opacity: 0.6;
+}
+
+.searchBottom {
+  padding: 30rpx;
+}
+
+.hotsearchtitle {
+  font-size: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.hotsearchitem {
+  display: inline-block;
+  margin: 0rpx 20rpx;
+  margin-bottom: 20rpx;
+  font-size: 24rpx;
+  /* height: 40rpx; */
+  color: #666;
+  border: 1px solid #f2f2f2;
+  padding: 0 20rpx;
+  border-radius: 40rpx;
+  line-height: 40rpx;
+}
+
+.searchNav {
+  height: 80rpx;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ea584f;
+  position: fixed;
+  top: 80rpx;
+  z-index: 9;
+}
+
+.searchNav text {
+  width: 25%;
+  text-align: center;
+  font-size: 28rpx;
+  color: #fff;
+  height: 100%;
+  line-height: 80rpx;
+}
+
+.navLine {
+  height: 8rpx;
+  background-color: #fff;
+  width: 80rpx;
+  position: absolute;
+  bottom: 8rpx;
+  border-radius: 8rpx;
+  transition: transform 0.3s;
+}
+
+.listBox {
+  width: 750rpx;
+  position: relative;
+  height: 100%;
+}
+
+.listBoxcenter {
+  width: 3000rpx;
+  position: absolute;
+  display: flex;
+  transition: transform 0.2s;
+  bottom: 0;
+  top: 0;
+  overflow: visible;
+}
+
+.centeritem {
+  width: 750rpx;
+  overflow-y: auto;
+  height: 750rpx;
+}
+
+.Listitem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 20rpx 16rpx 0;
+  margin-left: 20rpx;
+  width: 730rpx;
+  box-sizing: border-box;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.listItem-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.listItem-left text {
+  font-size: 26rpx;
+  color: #3e8ef2;
+}
+
+.albumName text {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.musicList_item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10rpx;
+  box-sizing: border-box;
+  height: 120rpx;
+}
+
+.musicList_item image {
+  width: 100rpx;
+  height: 100rpx;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+
+.musiclistItem_right {
+  width: 600rpx;
+  overflow: hidden;
+  height: 120rpx;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.musiclistItem_name {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+}
+
+.musiclistItem_info {
+  font-size: 24rpx;
+  color: #999;
+}
+.singerItem {
+  width: 224rpx;
+  padding: 12rpx;
+  box-sizing: border-box;
+  border: 1px solid #f2f2f2;
+  border-radius: 4px;
+  margin-bottom: 20rpx;
+  height: 300rpx;
+  margin-left: 19rpx;
+}
+.singerItem image {
+  width: 200rpx;
+  height: 200rpx;
+}
+.singerName {
+  font-size: 24rpx;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 63rpx;
+}
+.singerBox {
+  padding: 20rpx;
+  padding-left: 0;
+  display: flex;
+  box-sizing: border-box;
+  width: 750rpx;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
+}
+.mvsItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 140rpx;
+  padding: 10rpx;
+  box-sizing: border-box;
+}
+.mvsLeft {
+  height: 120rpx;
+  width: 213rpx;
+  flex-grow: 0;
+  margin-right: 10rpx;
+  position: relative;
+}
+.mvsLeft image {
+  width: 213rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+}
+.mvsRight {
+  width: 500rpx;
+  padding-left: 10rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  height: 140rpx;
+  border-bottom: 1px solid #f2f2f2;
+}
+.mvsRight_name {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+.mvsRight_info {
+  font-size: 24rpx;
+  color: #999;
+}
+.mvsplayCount {
+  position: absolute;
+  top: 0rpx;
+  right: 10rpx;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mvsplayCount text {
+  font-size: 20rpx;
+  text-shadow: 1px 1px 4px #000;
+}
+.mvsplayCount .icon {
+  font-size: 24rpx;
+  text-shadow: 1px 1px 4px #000;
+}
+</style>

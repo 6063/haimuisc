@@ -1,0 +1,42 @@
+<!--  -->
+<template>
+    <wxs src="../filter/filter.wxs" module="filter" />
+    <view class='musicList_item' bindtap='goMusiclist' data-id='{{item.id}}'>
+        <image lazy-load src='{{item.coverImgUrl}}'></image>
+        <view class='musiclistItem_right'>
+        <text class='musiclistItem_name'>{{item.name}}</text>
+        <view class='musiclistItem_info'>
+            <text>{{item.trackCount}}首音乐 </text>
+            <text>by {{item.creator.nickname}}， </text>
+            <text>播放{{filter.over10000(item.playCount)}}次</text>
+        </view>
+        </view>
+    </view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  export default class Example extends wepy.component {
+    props = {};
+
+    data = {};
+
+    components = {};
+
+    methods = {};
+
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    onLoad() { };
+
+    onShow() { };
+  }
+</script>
+
+<style lang='less'>
+
+</style>

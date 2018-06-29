@@ -1,0 +1,47 @@
+<!--  -->
+<template>
+    <wxs src="../filter/filter.wxs" module="filter" />
+    <view class='musicListitem' bindtap='getMusicList' data-id="{{item.id}}">
+        <view class='musicListitem_imgbox'>
+        <image src='{{item.picUrl}}' class='musicListitem_img' mode="widthFix" lazy-load='true'></image>
+        <view class='playCount_box'>
+            <view class='iconfont icon-ttpod playCount_icon'></view>
+            <text class='playCount'>{{filter.over10000(item.playCount)}}</text>
+        </view>
+        </view>
+        <view class='musicListitem_name'>{{item.name}}</view>
+    </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+export default class Example extends wepy.component {
+  props = {};
+
+  data = {};
+
+  components = {};
+
+  methods = {
+    // 获取歌单id，跳转到歌单列表页，传送id
+    getMusicList(e) {
+      wx.navigateTo({
+        url: `./musicList?musicListID=${e.currentTarget.dataset.id}`
+      });
+    }
+  };
+
+  events = {};
+
+  watch = {};
+
+  computed = {};
+
+  onLoad() {}
+
+  onShow() {}
+}
+</script>
+
+<style lang='less'>
+</style>

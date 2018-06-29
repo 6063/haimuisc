@@ -1,0 +1,186 @@
+<!--  -->
+<template>
+  <!--index.wxml-->
+<wxs src="../filter/filter.wxs" module="filter" />
+<view class="videoBox">
+  <block wx:for="{{recommendMVList}}" wx:key="{{*index}}">
+    <view class='recommendMV_item' >
+      <view class='recommendMV_item_imgbox'  bindtap='govideoDetai' data-id='{{item.id}}'>
+        <image src='{{item.cover}}' class='recommendMV_item_img' mode="widthFix" lazy-load='true'></image>
+        <!-- 播放量 -->
+        <view class='playCount_box'>
+          <view class='iconfont icon-shipin4 playCount_icon'></view>
+          <text class='playCount'>{{filter.over10000(item.playCount)}}</text>
+        </view>
+
+        <!-- name -->
+        <view class='artistName'>
+          <text>{{item.artistName}}</text>
+
+        </view>
+
+        <view class='playBtn'>
+          <view class='iconfont icon-bofang'></view>
+        </view>
+      </view>
+
+      <view class='musicListitem_name'>
+        <text class='itemName'>{{item.name}}</text>
+        <text wx:if="{{item.briefDesc}}">{{item.briefDesc}}</text>
+      </view>
+    </view>
+  </block>
+</view>
+</template>
+
+<script>
+  import wepy from 'wepy';
+  import api from '../api/api.js'
+  export default class Example extends wepy.page {
+    config = {
+        navigationBarTitleText: "推荐mv",
+        onReachBottomDistance: 600
+    };
+
+    data = {
+      recommendMVList: [],
+      limit: 10
+    };
+
+    components = {};
+
+    methods = {
+       // 播放视频
+      govideoDetai(options){
+        wx.navigateTo({
+          url: `./videoPlay?videoid=${options.currentTarget.dataset.id}`,
+        })
+      }
+    };
+
+    events = {};
+
+    watch = {};
+
+    computed = {};
+
+    onLoad() { 
+      this.getRecommendMV();
+    };
+
+
+      // 获取推荐MV
+      getRecommendMV() {
+        api.getRecommendMV({
+          data: {
+            limit: this.limit
+          },
+          success: resp => {
+            this.recommendMVList= resp.data.data
+            this.$apply()
+          }
+        })
+      }
+     
+
+    onShow() { };
+
+      /**
+      * 页面上拉触底事件的处理函数
+      */
+      onReachBottom() {
+          this.limit= this.limit + 10
+          this.getRecommendMV()
+      }
+  }
+</script>
+
+<style lang='less'>
+/**index.wxss**/
+
+.videoBox {
+  padding: 10rpx 0;
+}
+
+.recommendMV_item {
+  width: 100%;
+}
+
+.recommendMV_item_imgbox {
+  width: 100%;
+  height: 400rpx;
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.recommendMV_item_img {
+  width: 100%;
+  height: 100%;
+}
+
+.musicListitem_name {
+  font-size: 26rpx;
+  margin: 5px 0;
+  overflow: hidden;
+  height: 80rpx;
+  padding: 0 3px;
+  margin-bottom: 20rpx;
+}
+
+.playCount_box {
+  position: absolute;
+  top: 10rpx;
+  left: 20rpx;
+  color: #fff;
+  font-size: 24rpx;
+  height: 40rpx;
+  text-shadow: 1px 1px 4px #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.playCount_icon {
+  font-size: 28rpx;
+  margin-right: 3px;
+}
+
+.artistName {
+  position: absolute;
+  top: 10rpx;
+  right: 20rpx;
+  background-color: rgba(0, 0, 0, 0.4);
+  font-size: 22rpx;
+  color: #fff;
+  height: 30rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rpx 20rpx;
+  border-radius: 30rpx;
+  border: 1rpx solid #fff;
+}
+
+.playBtn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.playBtn view {
+  font-size: 80rpx;
+  color: #fff;
+   text-shadow: 0px 0px 9px rgba(0, 0, 0, 0.6); 
+}
+.itemName{
+  font-weight: bold;
+  display: block;
+  line-height: 40rpx;
+}
+</style>
