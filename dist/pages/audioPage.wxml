@@ -1,0 +1,37 @@
+
+  <!-- pages/audioPage/audioPage.wxml  playing -->
+<wxs src="../filter/filter.wxs" module="filter"/>
+<view class="audioPage {{isplaying?'playing':''}}" style="height:{{innerHeight}}px">
+  <view class="bgImg">
+    <image class="bgImg_img" src="{{picUrl}}" mode="top"/>
+    <view class="bgcolor"/>
+  </view>
+  <view class="player">
+    <image class="player_img" src="../../../images/aag.png"/>
+  </view>
+  <view class="coverImgbox {{isplaying?'musicisplay':'musicispaused'}}">
+    <image class="coverbgImg" src="../../../images/heijiao.png"/>
+    <image class="songcoverImg" src="{{picUrl}}"/>
+  </view>
+
+  <view class="buttons">
+    <view class="iconfont icon-xihuan"/>
+    <view class="iconfont icon-xiazai"/>
+    <view class="iconfont icon-pinglun1"/>
+    <view class="iconfont icon-gengduoxiao"/>
+  </view>
+
+   <view class="songSliderbox">
+    <text>{{filter.formatmusicTime(playtime)}}</text>
+    <slider class="songSlider" min="0" max="{{duration/1000}}" value="{{playtime}}" bindchange="sliderChange" block-size="16" activeColor="#d81e06"/>
+    <text>{{filter.formatmusicTime(duration/1000)}}</text>
+  </view> 
+  
+  <view class="changeSong">
+    <view class="iconfont icon-48shangyishou changebtn" bindtap="prevMusic"/>
+    <view class="iconfont icon-zanting pausebtn"  wx:if="{{isplaying}}" bindtap="pauseMusic"/>
+    <view class="iconfont icon-bofang playbtn"  wx:else bindtap="palyMusic"/>
+    <view class="iconfont icon-49xiayishou changebtn" bindtap="nextMusic"/>
+  </view>
+
+</view>

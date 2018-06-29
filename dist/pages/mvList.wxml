@@ -1,0 +1,34 @@
+
+  <wxs src="../filter/filter.wxs" module="filter"/>
+  <view class="videoBox"  wx:if="{{mvs.length}}">
+    <block wx:for="{{mvs}}" wx:key="{{*index}}">
+      <view class="recommendMV_item">
+        <view class="recommendMV_item_imgbox" bindtap="govideoDetai" data-id="{{item.id}}">
+          <image src="{{item.imgurl16v9}}" class="recommendMV_item_img" mode="widthFix" lazy-load="true"/>
+          <!-- 播放量 -->
+          <view class="playCount_box">
+            <view class="iconfont icon-shipin4 playCount_icon"/>
+            <text class="playCount">{{filter.over10000(item.playCount)}}</text>
+          </view>
+
+          <!-- name -->
+          <view class="artistName">
+            <text>{{item.artistName}}</text>
+
+          </view>
+
+          <view class="playBtn">
+            <view class="iconfont icon-bofang"/>
+          </view>
+        </view>
+
+        <view class="musicListitem_name">
+          <text class="itemName">{{item.name}}</text>
+          <text>{{item.artistName}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+<view  wx:else class="noMvs">
+  他没有视频你敢信？
+</view>

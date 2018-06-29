@@ -1,0 +1,106 @@
+
+  <view class="searchPage">
+  <view class="topSearch">
+    <form bindreset="clearValue" class="inputform">
+      <input class="inputB" placeholder-class="holderInput" placeholder="输入您想要搜索的内容" auto-focus confirm-type="search" bindconfirm="startSearch" bindinput="inputC" value="{{keywords}}"/>
+      <view class="iconfont icon-sousuo sousuo"/>
+      <button class="iconfont icon-shanchu clearBtn" formType="reset"  wx:if="{{haveValue}}"/>
+    </form>
+    <view class="cansBtn" bindtap="back">取消</view>
+  </view>
+  <view class="searchBottom"  wx:if="{{showHotsearch}}">
+    <view class="hotsearchtitle">热门搜索</view>
+    <block wx:for="{{hotsearch}}" wx:key="{{*index}}">
+      <text class="hotsearchitem" bindtap="startSearch" data-value="{{item.name}}">{{item.name}}</text>
+    </block>
+  </view>
+
+  <view wx:else>
+    <view class="searchNav">
+      <text bindtap="changeNav" data-type="1">单曲</text>
+      <text bindtap="changeNav" data-type="1000">歌单</text>
+      <text bindtap="changeNav" data-type="100">歌手</text>
+      <text bindtap="changeNav" data-type="1004">视频</text>
+      <view class="navLine" style="transform:translateX({{navLinePosition}})"/>
+    </view>
+    <view class="listBox">
+      <view class="listBoxcenter" style="transform:translateX({{positionLeft}})">
+        <view class="songBox centeritem" style="height:{{innerHeight}}rpx">
+          
+
+            <block wx:for="{{songArr}}" wx:for-index="index" wx:for-item="item" wx:key="*index">
+                
+  <view class="Listitem" bindtap="$songList$playSong" data-itemid="{{item.id}}" data-duration="{{item.duration}}" data-com-index="{{index}}">
+    <view class="listItem-left">
+      <text>{{item.name}}</text>
+      <text class="albumName">
+          <text>{{item.artists[0].name}} - </text><text>{{item.album.name}}</text>
+      </text>
+    </view>
+    <icon class="iconfont icon-bofang1"/>
+  </view>
+
+            </block>
+
+
+        </view>
+        <view class="musiclistBox centeritem" style="height:{{innerHeight}}rpx">
+
+          <block wx:for="{{musicListArr}}" wx:for-index="index" wx:for-item="item" wx:key="%index">
+                
+    <wxs src="../filter/filter.wxs" module="filter"/>
+    <view class="musicList_item" bindtap="$musicList$goMusiclist" data-id="{{item.id}}" data-com-index="{{index}}">
+        <image lazy-load="lazy-load" src="{{item.coverImgUrl}}"/>
+        <view class="musiclistItem_right">
+        <text class="musiclistItem_name">{{item.name}}</text>
+        <view class="musiclistItem_info">
+            <text>{{item.trackCount}}首音乐 </text>
+            <text>by {{item.creator.nickname}}， </text>
+            <text>播放{{$musicList$filter.over10000(item.playCount)}}次</text>
+        </view>
+        </view>
+    </view>
+
+            </block>
+          
+        </view>
+        <view class="singerBox centeritem" style="height:{{innerHeight}}rpx">         
+
+
+          <block wx:for="{{singerArr}}" wx:for-index="index" wx:for-item="item" wx:key="%index">
+                
+  <view class="singerItem" bindtap="$singerList$goSingerMv" data-id="{{item.id}}" data-name="{{item.name}}" data-com-index="{{index}}">
+    <image src="{{item.img1v1Url}}"/>
+    <view class="singerName">{{item.name}}</view>
+  </view>
+
+            </block>
+          
+        </view>
+        <view class="videoBox centeritem" style="height:{{innerHeight}}rpx">
+
+            <block wx:for="{{videoArr}}" wx:for-index="index" wx:for-item="item" wx:key="%index">
+                
+    <wxs src="../filter/filter.wxs" module="filter"/>
+     <view class="mvsItem" bindtap="$videoList$govideoDetai" data-id="{{item.id}}" data-com-index="{{index}}">
+    <view class="mvsLeft">
+      <image lazy-load="lazy-load" src="{{item.cover}}"/>
+      <view class="mvsplayCount">
+        <view class="iconfont icon-shipin4 icon"/>
+        <text>{{$videoList$filter.over10000(item.playCount)}}</text>
+      </view>
+    </view>
+    <view class="mvsRight">
+      <view class="mvsRight_name">{{item.name}}</view>
+      <view class="mvsRight_info">{{$videoList$filter.formatmusicTime(item.duration/1000)}}，by {{item.artistName}}</view>
+    </view>
+  </view>
+
+            </block>
+
+        
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
